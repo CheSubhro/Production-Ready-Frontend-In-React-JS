@@ -1,5 +1,7 @@
 
+# 📂 Project Structure
 
+```text
 Production-Ready-Frontend-In-React-JS/
 ├── public/                 # Static assets directly served to the browser
 ├── src/                    # Main source code directory
@@ -33,7 +35,6 @@ Production-Ready-Frontend-In-React-JS/
 ├── index.html              # Core single-page HTML skeleton
 ├── package.json            # Manifest file declaring dependencies
 └── README.md               # Setup and project documentation
-
 
 npm install
 npm run dev
