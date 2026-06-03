@@ -1,6 +1,6 @@
 
 import { VStack, Text, Icon } from '@chakra-ui/react';
-import { FiInbox } from 'react-icons/fi'; // react-icons install thakte hobe
+import { FiInbox } from 'react-icons/fi'; // react-icons install 
 
 const EmptyState = ({ message = "No Data Found" }) => (
     <VStack py={10} spacing={3}>
