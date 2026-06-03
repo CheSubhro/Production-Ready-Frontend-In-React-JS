@@ -93,6 +93,11 @@ copy nul src\utils\constants.js & copy nul src\utils\formatDate.js & copy nul sr
 
 copy nul src\store\store.js & copy nul src\store\authSlice.js
 
+- Layout Files -
+
+copy nul src\layouts\MainLayout.jsx && copy nul src\layouts\AdminLayout.jsx
+
+
 
 
 
