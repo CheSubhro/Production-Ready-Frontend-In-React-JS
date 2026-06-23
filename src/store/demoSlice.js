@@ -1,49 +1,77 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import demoService from '../services/demoService'; // Change Acoordingly
+import demoService from '../services/demoService';
 
-// ১. Async Thunk: API কল করার জন্য
-export const fetchData = createAsyncThunk(
-    'sliceName/fetchData',
-    async (params, thunkAPI) => {
-        try {
-            const response = await api.get('/endpoint', { params });
-            return response.data; // ডাটা রিটার্ন করুন
-        } catch (error) {
-            return thunkAPI.rejectWithValue(error.response?.data?.message || 'Error occurred');
-        }
-    }
-);
+// ১. Async Thunks (CRUD Operations)
+export const fetchItems = createAsyncThunk('data/fetchAll', async (params, thunkAPI) => {
+    try { return await demoService.fetchAllItems(params); } 
+    catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch items'); }
+});
 
-// ২. Slice তৈরি: স্টেট এবং রিডুসার ম্যানেজমেন্ট
+export const fetchItemById = createAsyncThunk('data/fetchById', async (id, thunkAPI) => {
+    try { return await demoService.fetchItemById(id); } 
+    catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to fetch item'); }
+});
+
+export const createNewItem = createAsyncThunk('data/create', async (data, thunkAPI) => {
+    try { return await demoService.createItem(data); } 
+    catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to create item'); }
+});
+
+export const updateExistingItem = createAsyncThunk('data/update', async ({ id, data }, thunkAPI) => {
+    try { return await demoService.updateItem(id, data); } 
+    catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to update item'); }
+});
+
+export const deleteExistingItem = createAsyncThunk('data/delete', async (id, thunkAPI) => {
+    try { await demoService.deleteItem(id); return id; } // ডিলিট সফল হলে আইডি রিটার্ন করছি
+    catch (error) { return thunkAPI.rejectWithValue(error.response?.data?.message || 'Failed to delete item'); }
+});
+
+// ২. Slice
 const dataSlice = createSlice({
-    name: 'sliceName',
+    name: 'data',
     initialState: {
-        items: [],       // ডাটা রাখার জন্য
-        isLoading: false, // লোডিং স্টেট
-        isError: false,   // এরর ফ্ল্যাগ
-        message: '',      // এরর মেসেজ
+        items: [],
+        currentItem: null,
+        isLoading: false,
+        isError: false,
+        message: '',
     },
     reducers: {
-        // যদি সাধারণ কোনো লোকাল আপডেট দরকার হয়
         resetState: (state) => {
             state.items = [];
+            state.currentItem = null;
             state.isError = false;
         }
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchData.pending, (state) => {
-                state.isLoading = true;
-                state.isError = false;
-            })
-            .addCase(fetchData.fulfilled, (state, action) => {
+            // Fetch All
+            .addCase(fetchItems.pending, (state) => { state.isLoading = true; })
+            .addCase(fetchItems.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.items = action.payload; // ডাটা সেট করা
+                state.items = action.payload;
             })
-            .addCase(fetchData.rejected, (state, action) => {
+            .addCase(fetchItems.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.message = action.payload; // এরর মেসেজ সেট করা
+                state.message = action.payload;
+            })
+            // Fetch By ID
+            .addCase(fetchItemById.fulfilled, (state, action) => {
+                state.currentItem = action.payload;
+            })
+            // Create
+            .addCase(createNewItem.fulfilled, (state, action) => {
+                state.items.push(action.payload);
+            })
+            // Update
+            .addCase(updateExistingItem.fulfilled, (state, action) => {
+                state.items = state.items.map(item => item._id === action.payload._id ? action.payload : item);
+            })
+            // Delete
+            .addCase(deleteExistingItem.fulfilled, (state, action) => {
+                state.items = state.items.filter(item => item._id !== action.payload);
             });
     },
 });
